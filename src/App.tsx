@@ -1,24 +1,42 @@
 import React, { useState } from 'react';
 
+type Status = 'higher' | 'similar' | 'lower' | '';
+
+interface DimensionItem {
+  id: string;
+  name: string;
+  status: Status;
+  ability: string;
+}
+
+const initialItems: DimensionItem[] = [
+  { id: 'overall', name: '整體', status: '', ability: '' },
+  { id: 'num_calc', name: '數與計算', status: '', ability: '' },
+  { id: 'measure', name: '量與實測', status: '', ability: '' },
+  { id: 'space_shape', name: '空間與形狀', status: '', ability: '' },
+  { id: 'relation', name: '關係', status: '', ability: '' },
+  { id: 'concept', name: '概念理解', status: '', ability: '' },
+  { id: 'process', name: '程序執行', status: '', ability: '' },
+  { id: 'problem_solving', name: '解題思考', status: '', ability: '' },
+];
+
 function App() {
   const [district, setDistrict] = useState('');
   const [school, setSchool] = useState('');
   const [academicYear, setAcademicYear] = useState('');
   const [subject, setSubject] = useState('');
 
-  const [highPassDims, setHighPassDims] = useState<string[]>([]);
-  const [goodAbilities, setGoodAbilities] = useState('');
-  const [lowPassDims, setLowPassDims] = useState<string[]>([]);
-  const [needsImprovementAbilities, setNeedsImprovementAbilities] = useState('');
+  const [items, setItems] = useState<DimensionItem[]>(initialItems);
 
-  const dimensionsList = ['數與計算', '量與實測', '空間與形狀', '關係'];
+  const updateItem = (id: string, field: keyof DimensionItem, value: string) => {
+    setItems(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
   
-  const handleDimChange = (dim: string, type: 'high' | 'low') => {
-    if (type === 'high') {
-      setHighPassDims(prev => prev.includes(dim) ? prev.filter(d => d !== dim) : [...prev, dim]);
-    } else {
-      setLowPassDims(prev => prev.includes(dim) ? prev.filter(d => d !== dim) : [...prev, dim]);
-    }
+  const getResultSuffix = (status: Status) => {
+    if (status === 'higher') return '表現良好';
+    if (status === 'similar') return '保持穩定';
+    if (status === 'lower') return '需稍加強';
+    return '...';
   };
 
   return (
@@ -70,61 +88,52 @@ function App() {
           </p>
           
           <div className="space-y-6 ml-4">
-            <div className="flex items-start">
-              <span className="mr-2">1.</span>
-              <div className="flex-1 leading-loose">
-                (與全市學生作答答對率相比)本校學生
-                <span className="inline-flex flex-wrap items-center gap-2 mx-2 border-b-2 border-gray-200 pb-1">
-                  {dimensionsList.map(dim => (
-                    <label key={dim} className="cursor-pointer flex items-center space-x-1">
-                      <input 
-                        type="checkbox" 
-                        checked={highPassDims.includes(dim)}
-                        onChange={() => handleDimChange(dim, 'high')}
-                      />
-                      <span>{dim}向度</span>
-                    </label>
-                  ))}
-                </span>
-                通過率較高，表示在
-                <input 
-                  type="text" 
-                  className="border-b-2 border-gray-400 mx-2 w-48 text-center focus:outline-none focus:border-blue-500" 
-                  value={goodAbilities}
-                  onChange={(e) => setGoodAbilities(e.target.value)}
-                  placeholder="能力說明"
-                />
-                的能力方面，表現良好。
-              </div>
-            </div>
+            {items.map((item, index) => {
+              // Grouping headers logic
+              let groupHeader = null;
+              if (index === 0) groupHeader = <h3 className="font-bold text-lg text-blue-800 mb-2 mt-4">整體</h3>;
+              if (index === 1) groupHeader = <h3 className="font-bold text-lg text-blue-800 mb-2 mt-8">學習內容分析</h3>;
+              if (index === 5) groupHeader = <h3 className="font-bold text-lg text-blue-800 mb-2 mt-8">學習表現分析</h3>;
 
-            <div className="flex items-start">
-              <span className="mr-2">2.</span>
-              <div className="flex-1 leading-loose">
-                (與全市學生作答答對率相比)本校學生
-                <span className="inline-flex flex-wrap items-center gap-2 mx-2 border-b-2 border-gray-200 pb-1">
-                  {dimensionsList.map(dim => (
-                    <label key={dim} className="cursor-pointer flex items-center space-x-1">
-                      <input 
-                        type="checkbox" 
-                        checked={lowPassDims.includes(dim)}
-                        onChange={() => handleDimChange(dim, 'low')}
-                      />
-                      <span>{dim}向度</span>
-                    </label>
-                  ))}
-                </span>
-                通過率較低，表示在
-                <input 
-                  type="text" 
-                  className="border-b-2 border-gray-400 mx-2 w-48 text-center focus:outline-none focus:border-blue-500" 
-                  value={needsImprovementAbilities}
-                  onChange={(e) => setNeedsImprovementAbilities(e.target.value)}
-                  placeholder="能力說明"
-                />
-                的能力方面，尚需加強。
-              </div>
-            </div>
+              return (
+                <React.Fragment key={item.id}>
+                  {groupHeader}
+                  <div className="flex items-start">
+                    <span className="mr-2">{index + 1}.</span>
+                    <div className="flex-1 leading-loose">
+                      (與全市學生作答答對率相比)本校學生{item.name === '整體' ? '整體' : `${item.name}向度`}通過率
+                      <select 
+                        className="border-b-2 border-gray-400 mx-2 text-center focus:outline-none focus:border-blue-500 bg-transparent text-blue-700 font-semibold cursor-pointer"
+                        value={item.status}
+                        onChange={(e) => updateItem(item.id, 'status', e.target.value as Status)}
+                      >
+                        <option value="">(請選擇)</option>
+                        <option value="higher">高於</option>
+                        <option value="similar">接近</option>
+                        <option value="lower">略低於</option>
+                      </select>
+                      市平均
+                      {item.id === 'overall' ? '。' : (
+                        <>
+                          ，表示在
+                          <input 
+                            type="text" 
+                            className="border-b-2 border-gray-400 mx-2 w-64 text-center focus:outline-none focus:border-blue-500" 
+                            value={item.ability}
+                            onChange={(e) => updateItem(item.id, 'ability', e.target.value)}
+                            placeholder="請填入能力說明(參考圖五)"
+                          />
+                          的能力方面，
+                          <span className="font-semibold text-green-700">
+                            {item.status ? getResultSuffix(item.status) : '(將依選擇自動變更)'}
+                          </span>。
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </React.Fragment>
+              );
+            })}
           </div>
         </section>
 
