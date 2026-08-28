@@ -1,18 +1,19 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import curriculumData from './curriculum_data.json';
 import referenceAnswers from './referenceAnswers.json';
 import { getRandomItems } from './utils';
+import { exportToDocx } from './exportDocx';
 
 type Status = 'higher' | 'similar' | 'lower' | '';
 
-interface DimensionItem {
+export interface DimensionItem {
   id: string;
   name: string;
   status: Status;
   ability: string;
 }
 
-interface CurriculumItem {
+export interface CurriculumItem {
   code: string;
   description: string;
   remark: string;
@@ -143,21 +144,56 @@ function App() {
     return '...';
   };
 
+  const tbodyRef = useRef<HTMLTableSectionElement>(null);
+
+  const handleExport = () => {
+    const sec2TableRows: { item: string; strategy: string; grade: string }[] = [];
+    if (tbodyRef.current) {
+      const rows = tbodyRef.current.querySelectorAll('tr');
+      rows.forEach(row => {
+        const textareas = row.querySelectorAll('textarea');
+        const inputs = row.querySelectorAll('input');
+        if (textareas.length > 0 && inputs.length > 0) {
+          const itemCell = row.cells[0]?.textContent || '';
+          const strategy = textareas[0].value;
+          const grade = inputs[0].value;
+          sec2TableRows.push({ item: itemCell, strategy, grade });
+        }
+      });
+    }
+
+    exportToDocx(
+      { district, school, academicYear, subject },
+      items,
+      sec2TableRows,
+      sec3Checked.map((item, idx) => `${idx + 1}、${item}`).join('\n'),
+      sec4Checked.map((item, idx) => `${idx + 1}、${item}`).join('\n'),
+      sec5Checked.map((item, idx) => `${idx + 1}、${item}`).join('\n')
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto bg-white p-8 shadow-sm border border-gray-200">
         
         {/* Title Section */}
-        <h1 className="text-2xl font-bold text-center mb-10 leading-relaxed">
-          新北市
-          <input 
-            type="text" 
-            className="border-b-2 border-gray-400 mx-2 w-24 text-center focus:outline-none focus:border-blue-500" 
-            value={district}
-            onChange={(e) => setDistrict(e.target.value)}
-            placeholder="區"
-          />
-          區
+        <div className="relative mb-10">
+          <button 
+            onClick={handleExport}
+            className="absolute top-0 right-0 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow text-sm"
+          >
+            匯出 DOCX 檔
+          </button>
+          <h1 className="text-2xl font-bold text-center leading-relaxed mt-10">
+            新北市
+            <input 
+              type="text" 
+              className="border-b-2 border-gray-400 mx-2 w-24 text-center focus:outline-none focus:border-blue-500" 
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              placeholder="區"
+            />
+            區
           <input 
             type="text" 
             className="border-b-2 border-gray-400 mx-2 w-32 text-center focus:outline-none focus:border-blue-500" 
@@ -183,7 +219,7 @@ function App() {
           />
           科能力檢測】結果分析及因應措施範例
         </h1>
-
+        </div>
         {/* Section 1 */}
         <section className="mb-10">
           <h2 className="text-xl font-bold mb-4">一、【檢測結果分析】</h2>
@@ -277,7 +313,7 @@ function App() {
                 <th className="p-2 w-1/4">實施年級</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody ref={tbodyRef}>
               {selectedDimensions.length === 0 ? (
                 <tr className="border-b border-black">
                   <td colSpan={3} className="p-4 text-gray-500">請先於上方勾選欲改善之向度以帶入課綱資料。</td>
