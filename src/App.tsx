@@ -192,7 +192,7 @@ function App() {
             匯出 DOCX 檔
           </button>
         </div>
-        <h1 className="text-xl md:text-2xl font-bold text-center mb-10 leading-relaxed">
+        <h1 className="text-xl md:text-2xl font-bold text-center mb-10 leading-relaxed whitespace-nowrap overflow-x-auto">
           新北市
           <input 
             type="text" 
