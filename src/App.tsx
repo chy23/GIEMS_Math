@@ -20,13 +20,13 @@ interface CurriculumItem {
 
 const initialItems: DimensionItem[] = [
   { id: 'overall', name: '整體', status: '', ability: '' },
-  { id: 'num_calc', name: '數與計算', status: '', ability: '' },
-  { id: 'measure', name: '量與實測', status: '', ability: '' },
-  { id: 'space_shape', name: '空間與形狀', status: '', ability: '' },
-  { id: 'relation', name: '關係', status: '', ability: '' },
-  { id: 'concept', name: '概念理解', status: '', ability: '' },
-  { id: 'process', name: '程序執行', status: '', ability: '' },
-  { id: 'problem_solving', name: '解題思考', status: '', ability: '' },
+  { id: 'num_calc', name: '數與計算', status: '', ability: '整數與運算、分數\\小數與運算、因數倍數、比例、速度' },
+  { id: 'measure', name: '量與實測', status: '', ability: '面積、重量、體積、容積、時間計算' },
+  { id: 'space_shape', name: '空間與形狀', status: '', ability: '平面與立體' },
+  { id: 'relation', name: '關係', status: '', ability: '併式與關係、數量關係' },
+  { id: 'concept', name: '概念理解', status: '', ability: '概念理解' },
+  { id: 'process', name: '程序執行', status: '', ability: '程序執行' },
+  { id: 'problem_solving', name: '解題思考', status: '', ability: '解題思考' },
 ];
 
 function App() {
@@ -141,7 +141,7 @@ function App() {
                         <option value="">(請選擇)</option>
                         <option value="higher">高於</option>
                         <option value="similar">接近</option>
-                        <option value="lower">略低於</option>
+                        <option value="lower">低於</option>
                       </select>
                       市平均
                       {item.id === 'overall' ? '。' : (
