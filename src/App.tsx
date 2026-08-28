@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import curriculumData from './curriculum_data.json';
+import referenceAnswers from './referenceAnswers.json';
+import { getRandomItems } from './utils';
 
 type Status = 'higher' | 'similar' | 'lower' | '';
 
@@ -35,6 +37,27 @@ function App() {
 
   const [items, setItems] = useState<DimensionItem[]>(initialItems);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+
+  const [sec3Checked, setSec3Checked] = useState<string[]>([]);
+  const [sec4Checked, setSec4Checked] = useState<string[]>([]);
+  const [sec5Checked, setSec5Checked] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Randomly select 3-5 items on initial load
+    setSec3Checked(getRandomItems(referenceAnswers.section3, 3, 5));
+    setSec4Checked(getRandomItems(referenceAnswers.section4, 3, 5));
+    setSec5Checked(getRandomItems(referenceAnswers.section5, 3, 5));
+  }, []);
+
+  const handleCheck = (section: string, item: string) => {
+    if (section === 'sec3') {
+      setSec3Checked(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+    } else if (section === 'sec4') {
+      setSec4Checked(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+    } else if (section === 'sec5') {
+      setSec5Checked(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+    }
+  };
 
   const updateItem = (id: string, field: keyof DimensionItem, value: string) => {
     setItems(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
@@ -209,29 +232,105 @@ function App() {
         {/* Section 3 */}
         <section className="mb-10">
           <h2 className="text-xl font-bold mb-4">三、【教師增能規劃】</h2>
-          <textarea 
-            className="w-full border border-gray-400 p-4 min-h-[120px] focus:outline-none focus:border-blue-500 rounded-sm"
-            placeholder="請輸入教師增能規劃內容..."
-          ></textarea>
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-1">
+              <h3 className="font-bold text-gray-700 mb-2">可勾選之參考項目：</h3>
+              <div className="h-64 overflow-y-auto border border-gray-300 p-4 rounded bg-gray-50">
+                {referenceAnswers.section3.map((item, i) => (
+                  <label key={i} className="flex items-start mb-2 cursor-pointer hover:bg-gray-100 p-1 rounded">
+                    <input 
+                      type="checkbox" 
+                      className="mt-1 mr-2" 
+                      checked={sec3Checked.includes(item)}
+                      onChange={() => handleCheck('sec3', item)}
+                    />
+                    <span className="text-sm leading-relaxed">{item}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-gray-700 mb-2">已選內容（可手動修改）：</h3>
+              <textarea 
+                className="w-full border border-gray-400 p-4 h-64 resize-none focus:outline-none focus:border-blue-500 rounded-sm leading-loose"
+                value={sec3Checked.map((item, idx) => `${idx + 1}、${item}`).join('\n')}
+                onChange={(e) => {
+                  // Allow manual editing by splitting on newlines
+                  const lines = e.target.value.split('\n').map(line => line.replace(/^\d+、/, '').trim()).filter(Boolean);
+                  setSec3Checked(lines);
+                }}
+              ></textarea>
+            </div>
+          </div>
         </section>
 
         {/* Section 4 */}
         <section className="mb-10">
           <h2 className="text-xl font-bold mb-4">四、【學習扶助教學規劃】</h2>
-          <textarea 
-            className="w-full border border-gray-400 p-4 min-h-[120px] focus:outline-none focus:border-blue-500 rounded-sm"
-            placeholder="請輸入學習扶助教學規劃內容..."
-          ></textarea>
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-1">
+              <h3 className="font-bold text-gray-700 mb-2">可勾選之參考項目：</h3>
+              <div className="h-64 overflow-y-auto border border-gray-300 p-4 rounded bg-gray-50">
+                {referenceAnswers.section4.map((item, i) => (
+                  <label key={i} className="flex items-start mb-2 cursor-pointer hover:bg-gray-100 p-1 rounded">
+                    <input 
+                      type="checkbox" 
+                      className="mt-1 mr-2" 
+                      checked={sec4Checked.includes(item)}
+                      onChange={() => handleCheck('sec4', item)}
+                    />
+                    <span className="text-sm leading-relaxed">{item}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-gray-700 mb-2">已選內容（可手動修改）：</h3>
+              <textarea 
+                className="w-full border border-gray-400 p-4 h-64 resize-none focus:outline-none focus:border-blue-500 rounded-sm leading-loose"
+                value={sec4Checked.map((item, idx) => `${idx + 1}、${item}`).join('\n')}
+                onChange={(e) => {
+                  const lines = e.target.value.split('\n').map(line => line.replace(/^\d+、/, '').trim()).filter(Boolean);
+                  setSec4Checked(lines);
+                }}
+              ></textarea>
+            </div>
+          </div>
         </section>
 
         {/* Section 5 */}
         <section className="mb-10">
           <h2 className="text-xl font-bold mb-4">五、其他因應措施</h2>
           <p className="mb-2 text-gray-700 text-sm">--各校視需要自行撰寫</p>
-          <textarea 
-            className="w-full border border-gray-400 p-4 min-h-[120px] focus:outline-none focus:border-blue-500 rounded-sm"
-            placeholder="請輸入其他因應措施..."
-          ></textarea>
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-1">
+              <h3 className="font-bold text-gray-700 mb-2">可勾選之參考項目：</h3>
+              <div className="h-64 overflow-y-auto border border-gray-300 p-4 rounded bg-gray-50">
+                {referenceAnswers.section5.map((item, i) => (
+                  <label key={i} className="flex items-start mb-2 cursor-pointer hover:bg-gray-100 p-1 rounded">
+                    <input 
+                      type="checkbox" 
+                      className="mt-1 mr-2" 
+                      checked={sec5Checked.includes(item)}
+                      onChange={() => handleCheck('sec5', item)}
+                    />
+                    <span className="text-sm leading-relaxed">{item}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-gray-700 mb-2">已選內容（可手動修改）：</h3>
+              <textarea 
+                className="w-full border border-gray-400 p-4 h-64 resize-none focus:outline-none focus:border-blue-500 rounded-sm leading-loose"
+                value={sec5Checked.map((item, idx) => `${idx + 1}、${item}`).join('\n')}
+                onChange={(e) => {
+                  const lines = e.target.value.split('\n').map(line => line.replace(/^\d+、/, '').trim()).filter(Boolean);
+                  setSec5Checked(lines);
+                }}
+              ></textarea>
+            </div>
+          </div>
         </section>
 
       </div>
