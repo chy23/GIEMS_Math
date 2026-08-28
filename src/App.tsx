@@ -108,6 +108,67 @@ function App() {
           </div>
         </section>
 
+        {/* Section 2 */}
+        <section className="mb-10">
+          <h2 className="text-xl font-bold mb-4">二、【改善教學及定期評量命題策略】</h2>
+          <p className="mb-4 text-gray-700 text-sm">
+            --各校應參考國語文和數學、英語文檢測試題答案、命題架構與答對率分析等統計數據，分析各項能力指標，擬定具體教學目標，尋找合適教學素材，並設計適當教學策略與方法，<span className="text-red-500 underline underline-offset-2">進一步作為改善學生定期學習評量之命題(例如：於高年級國語文和數學定期評量紙筆測驗增加多元題型之命題型式)</span>。
+          </p>
+          
+          <table className="w-full border-collapse border border-black text-center mb-6">
+            <thead>
+              <tr className="border-b border-black font-bold">
+                <th className="border-r border-black p-2 w-1/4">亟需改善之項目</th>
+                <th className="border-r border-black p-2 w-2/4 text-red-500 underline underline-offset-2">改善教學及定期評量命題策略</th>
+                <th className="p-2 w-1/4">實施年級</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[1, 2].map((row) => (
+                <tr key={row} className="border-b border-black">
+                  <td className="border-r border-black p-0">
+                    <textarea className="w-full h-full p-2 min-h-[60px] resize-none focus:outline-none focus:bg-blue-50" placeholder="請輸入項目..."></textarea>
+                  </td>
+                  <td className="border-r border-black p-0">
+                    <textarea className="w-full h-full p-2 min-h-[60px] resize-none focus:outline-none focus:bg-blue-50" placeholder="請輸入策略..."></textarea>
+                  </td>
+                  <td className="p-0">
+                    <input type="text" className="w-full h-full p-2 text-center focus:outline-none focus:bg-blue-50" placeholder="例如: 高年級" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        {/* Section 3 */}
+        <section className="mb-10">
+          <h2 className="text-xl font-bold mb-4">三、【教師增能規劃】</h2>
+          <textarea 
+            className="w-full border border-gray-400 p-4 min-h-[120px] focus:outline-none focus:border-blue-500 rounded-sm"
+            placeholder="請輸入教師增能規劃內容..."
+          ></textarea>
+        </section>
+
+        {/* Section 4 */}
+        <section className="mb-10">
+          <h2 className="text-xl font-bold mb-4">四、【學習扶助教學規劃】</h2>
+          <textarea 
+            className="w-full border border-gray-400 p-4 min-h-[120px] focus:outline-none focus:border-blue-500 rounded-sm"
+            placeholder="請輸入學習扶助教學規劃內容..."
+          ></textarea>
+        </section>
+
+        {/* Section 5 */}
+        <section className="mb-10">
+          <h2 className="text-xl font-bold mb-4">五、其他因應措施</h2>
+          <p className="mb-2 text-gray-700 text-sm">--各校視需要自行撰寫</p>
+          <textarea 
+            className="w-full border border-gray-400 p-4 min-h-[120px] focus:outline-none focus:border-blue-500 rounded-sm"
+            placeholder="請輸入其他因應措施..."
+          ></textarea>
+        </section>
+
       </div>
     </div>
   );
