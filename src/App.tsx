@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import curriculumData from './curriculum_data.json';
 import referenceAnswers from './referenceAnswers.json';
 import { getRandomItems } from './utils';
@@ -69,6 +69,72 @@ function App() {
       }
     }
   };
+
+  const sampledCurriculum = useMemo(() => {
+    if (selectedDimensions.length === 0) return [];
+    
+    const itemsByGradeAndDim: Record<string, Record<string, CurriculumItem[]>> = {
+      '1': {}, '2': {}, '3': {}, '4': {}, '5': {}, '6': {}
+    };
+
+    curriculumData.forEach((item: CurriculumItem) => {
+      const parts = item.code.split('-');
+      if (parts.length < 2) return;
+      const grade = parts[1];
+      if (!itemsByGradeAndDim[grade]) return;
+
+      const isMeasurement = /面積|重量|體積|容積|時間|長度|容量|角度|鐘面|時刻|日曆|公分|公尺|毫米|公里|公克|公斤|公升|毫升/.test(item.description);
+
+      let matchedDim = '';
+      if (selectedDimensions.includes('數與計算') && item.code.startsWith('N-') && !isMeasurement) matchedDim = '數與計算';
+      else if (selectedDimensions.includes('量與實測') && (item.code.startsWith('N-') || item.code.startsWith('S-')) && isMeasurement) matchedDim = '量與實測';
+      else if (selectedDimensions.includes('空間與形狀') && item.code.startsWith('S-') && !isMeasurement) matchedDim = '空間與形狀';
+      else if (selectedDimensions.includes('關係') && item.code.startsWith('R-')) matchedDim = '關係';
+
+      if (matchedDim) {
+        if (!itemsByGradeAndDim[grade][matchedDim]) itemsByGradeAndDim[grade][matchedDim] = [];
+        itemsByGradeAndDim[grade][matchedDim].push(item);
+      }
+    });
+
+    const result: CurriculumItem[] = [];
+
+    ['1', '2', '3', '4', '5', '6'].forEach(grade => {
+      const dimsForGrade = Object.keys(itemsByGradeAndDim[grade]);
+      if (dimsForGrade.length === 0) return;
+
+      const targetCount = Math.floor(Math.random() * 3) + 6; // 6, 7, or 8
+      const selectedForGrade: CurriculumItem[] = [];
+      
+      const pools = dimsForGrade.map(dim => {
+        const arr = [...itemsByGradeAndDim[grade][dim]];
+        return arr.sort(() => 0.5 - Math.random());
+      });
+
+      let added = true;
+      while (selectedForGrade.length < targetCount && added) {
+        added = false;
+        for (let pool of pools) {
+          if (selectedForGrade.length >= targetCount) break;
+          if (pool.length > 0) {
+            selectedForGrade.push(pool.pop()!);
+            added = true;
+          }
+        }
+      }
+
+      result.push(...selectedForGrade);
+    });
+
+    return result.sort((a, b) => {
+      const aParts = a.code.split('-');
+      const bParts = b.code.split('-');
+      if (aParts[1] !== bParts[1]) return parseInt(aParts[1]) - parseInt(bParts[1]);
+      if (aParts[0] !== bParts[0]) return aParts[0].localeCompare(bParts[0]);
+      return parseInt(aParts[2] || '0') - parseInt(bParts[2] || '0');
+    });
+
+  }, [selectedDimensions]);
   
   const getResultSuffix = (status: Status) => {
     if (status === 'higher') return '表現良好';
@@ -217,43 +283,23 @@ function App() {
                   <td colSpan={3} className="p-4 text-gray-500">請先於上方勾選欲改善之向度以帶入課綱資料。</td>
                 </tr>
               ) : (
-                curriculumData
-                  .filter((item: CurriculumItem) => {
-                    const isMeasurement = /面積|重量|體積|容積|時間|長度|容量|角度|鐘面|時刻|日曆|公分|公尺|毫米|公里|公克|公斤|公升|毫升/.test(item.description);
-                    
-                    let match = false;
-                    if (selectedDimensions.includes('數與計算')) {
-                      if (item.code.startsWith('N-') && !isMeasurement) match = true;
-                    }
-                    if (selectedDimensions.includes('量與實測')) {
-                      if ((item.code.startsWith('N-') || item.code.startsWith('S-')) && isMeasurement) match = true;
-                    }
-                    if (selectedDimensions.includes('空間與形狀')) {
-                      if (item.code.startsWith('S-') && !isMeasurement) match = true;
-                    }
-                    if (selectedDimensions.includes('關係')) {
-                      if (item.code.startsWith('R-')) match = true;
-                    }
-                    
-                    return match;
-                  })
-                  .map((item: CurriculumItem, index: number) => {
-                    const grade = item.code.split('-')[1]; // Extracted from N-X-Y
-                    return (
-                      <tr key={`${item.code}-${index}`} className="border-b border-black">
-                        <td className="border-r border-black p-2 text-left align-top text-sm">
-                          <span className="font-bold text-blue-700">[{item.code}]</span><br/>
-                          {item.description}
-                        </td>
-                        <td className="border-r border-black p-0">
-                          <textarea className="w-full h-full p-2 min-h-[80px] resize-none focus:outline-none focus:bg-blue-50" placeholder="請輸入策略..."></textarea>
-                        </td>
-                        <td className="p-0 align-top">
-                          <input type="text" className="w-full h-full p-2 text-center focus:outline-none focus:bg-blue-50 font-bold" defaultValue={`${grade}年級`} />
-                        </td>
-                      </tr>
-                    );
-                  })
+                sampledCurriculum.map((item: CurriculumItem, index: number) => {
+                  const grade = item.code.split('-')[1]; // Extracted from N-X-Y
+                  return (
+                    <tr key={`${item.code}-${index}`} className="border-b border-black">
+                      <td className="border-r border-black p-2 text-left align-top text-sm">
+                        <span className="font-bold text-blue-700">[{item.code}]</span><br/>
+                        {item.description}
+                      </td>
+                      <td className="border-r border-black p-0">
+                        <textarea className="w-full h-full p-2 min-h-[80px] resize-none focus:outline-none focus:bg-blue-50" placeholder="請輸入策略..."></textarea>
+                      </td>
+                      <td className="p-0 align-top">
+                        <input type="text" className="w-full h-full p-2 text-center focus:outline-none focus:bg-blue-50 font-bold" defaultValue={`${grade}年級`} />
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
