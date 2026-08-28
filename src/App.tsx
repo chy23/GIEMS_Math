@@ -184,26 +184,27 @@ function App() {
       <div className="max-w-4xl mx-auto bg-white p-8 shadow-sm border border-gray-200">
         
         {/* Title Section */}
-        <div className="relative mb-10">
+        <div className="flex justify-end mb-4">
           <button 
             onClick={handleExport}
-            className="absolute top-0 right-0 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow text-sm"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow text-sm"
           >
             匯出 DOCX 檔
           </button>
-          <h1 className="text-2xl font-bold text-center leading-relaxed mt-10">
-            新北市
-            <input 
-              type="text" 
-              className="border-b-2 border-gray-400 mx-2 w-24 text-center focus:outline-none focus:border-blue-500" 
-              value={district}
-              onChange={(e) => setDistrict(e.target.value)}
-              placeholder="區"
-            />
-            區
+        </div>
+        <h1 className="text-xl md:text-2xl font-bold text-center mb-10 leading-relaxed">
+          新北市
           <input 
             type="text" 
-            className="border-b-2 border-gray-400 mx-2 w-32 text-center focus:outline-none focus:border-blue-500" 
+            className="border-b-2 border-gray-400 mx-2 w-16 md:w-24 text-center focus:outline-none focus:border-blue-500" 
+            value={district}
+            onChange={(e) => setDistrict(e.target.value)}
+            placeholder="區"
+          />
+          區
+          <input 
+            type="text" 
+            className="border-b-2 border-gray-400 mx-2 w-20 md:w-32 text-center focus:outline-none focus:border-blue-500" 
             value={school}
             onChange={(e) => setSchool(e.target.value)}
             placeholder="校名"
@@ -211,7 +212,7 @@ function App() {
           國民小學
           <input 
             type="text" 
-            className="border-b-2 border-gray-400 mx-2 w-20 text-center focus:outline-none focus:border-blue-500" 
+            className="border-b-2 border-gray-400 mx-2 w-16 md:w-20 text-center focus:outline-none focus:border-blue-500" 
             value={academicYear}
             onChange={(e) => setAcademicYear(e.target.value)}
             placeholder="學年度"
@@ -219,7 +220,7 @@ function App() {
           學年度【
           <input 
             type="text" 
-            className="border-b-2 border-gray-400 mx-2 w-24 text-center focus:outline-none focus:border-blue-500" 
+            className="border-b-2 border-gray-400 mx-1 md:mx-2 w-16 md:w-24 text-center focus:outline-none focus:border-blue-500" 
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder="科目"
