@@ -227,7 +227,7 @@ function App() {
           />
           科能力檢測】結果分析及因應措施
         </h1>
-        </div>
+
         {/* Section 1 */}
         <section className="mb-10">
           <h2 className="text-xl font-bold mb-4">一、【檢測結果分析】</h2>
