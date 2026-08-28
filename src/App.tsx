@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import curriculumData from './curriculum_data.json';
 import referenceAnswers from './referenceAnswers.json';
 import { getRandomItems } from './utils';
@@ -16,25 +16,32 @@ export interface DimensionItem {
 export interface CurriculumItem {
   code: string;
   description: string;
-  remark: string;
+  strategy?: string;
 }
 
 const initialItems: DimensionItem[] = [
   { id: 'overall', name: '整體', status: '', ability: '' },
-  { id: 'num_calc', name: '數與計算', status: '', ability: '整數與運算、分數\\小數與運算、因數倍數、比例、速度' },
-  { id: 'measure', name: '量與實測', status: '', ability: '面積、重量、體積、容積、時間計算' },
-  { id: 'space_shape', name: '空間與形狀', status: '', ability: '平面與立體' },
-  { id: 'relation', name: '關係', status: '', ability: '併式與關係、數量關係' },
+  { id: 'num_calc', name: '數與計算', status: '', ability: '' },
+  { id: 'measure', name: '量與實測', status: '', ability: '' },
+  { id: 'space_shape', name: '空間與形狀', status: '', ability: '' },
+  { id: 'relation', name: '關係', status: '', ability: '' },
   { id: 'concept', name: '概念理解', status: '', ability: '概念理解' },
   { id: 'process', name: '程序執行', status: '', ability: '程序執行' },
   { id: 'problem_solving', name: '解題思考', status: '', ability: '解題思考' },
 ];
 
+const abilityOptions: Record<string, string[]> = {
+  num_calc: ['整數與運算', '分數\\小數與運算', '因數倍數', '比例', '速度'],
+  measure: ['面積', '重量', '體積', '容積', '時間計算'],
+  space_shape: ['平面與立體'],
+  relation: ['併式與關係', '數量關係'],
+};
+
 function App() {
-  const [district, setDistrict] = useState('');
-  const [school, setSchool] = useState('');
+  const [district, setDistrict] = useState('林口');
+  const [school, setSchool] = useState('麗園');
   const [academicYear, setAcademicYear] = useState('');
-  const [subject, setSubject] = useState('');
+  const [subject, setSubject] = useState('數學');
 
   const [items, setItems] = useState<DimensionItem[]>(initialItems);
   const [selectedDimensions, setSelectedDimensions] = useState<string[]>([]);
@@ -217,7 +224,7 @@ function App() {
             onChange={(e) => setSubject(e.target.value)}
             placeholder="科目"
           />
-          科能力檢測】結果分析及因應措施範例
+          科能力檢測】結果分析及因應措施
         </h1>
         </div>
         {/* Section 1 */}
@@ -236,12 +243,12 @@ function App() {
               if (index === 5) groupHeader = <h3 className="font-bold text-lg text-blue-800 mb-2 mt-8">學習表現分析</h3>;
 
               return (
-                <React.Fragment key={item.id}>
+                <div key={item.id}>
                   {groupHeader}
-                  <div className="flex items-start">
-                    <span className="mr-2">{index + 1}.</span>
-                    <div className="flex-1 leading-loose">
-                      (與全市學生作答答對率相比)本校學生{item.name === '整體' ? '整體' : `${item.name}向度`}通過率
+                  <div className="flex items-start bg-blue-50 p-4 rounded-md border-l-4 border-blue-400">
+                    <span className="mr-2 font-bold text-blue-700">{index + 1}.</span>
+                    <div className="leading-relaxed flex-1">
+                      (與全市學生作答答對率相比)本校學生<span className="font-bold border-b border-gray-400 pb-1 px-2">{item.name === '整體' ? '整體' : `${item.name}向度`}</span>通過率
                       <select 
                         className="border-b-2 border-gray-400 mx-2 text-center focus:outline-none focus:border-blue-500 bg-transparent text-blue-700 font-semibold cursor-pointer"
                         value={item.status}
@@ -256,22 +263,46 @@ function App() {
                       {item.id === 'overall' ? '。' : (
                         <>
                           ，表示在
-                          <input 
-                            type="text" 
-                            className="border-b-2 border-gray-400 mx-2 w-64 text-center focus:outline-none focus:border-blue-500" 
-                            value={item.ability}
-                            onChange={(e) => updateItem(item.id, 'ability', e.target.value)}
-                            placeholder="請填入能力說明(參考圖五)"
-                          />
-                          的能力方面，
-                          <span className="font-semibold text-green-700">
+                          {['num_calc', 'measure', 'space_shape', 'relation'].includes(item.id) ? (
+                            <div className="inline-flex gap-3 ml-2 flex-wrap items-center">
+                              {abilityOptions[item.id].map(opt => (
+                                <label key={opt} className="flex items-center text-sm cursor-pointer hover:text-blue-700">
+                                  <input
+                                    type="checkbox"
+                                    className="mr-1"
+                                    checked={item.ability.includes(opt)}
+                                    onChange={(e) => {
+                                      let newAbility = item.ability.split('、').filter(Boolean);
+                                      if (e.target.checked) newAbility.push(opt);
+                                      else newAbility = newAbility.filter(a => a !== opt);
+                                      updateItem(item.id, 'ability', newAbility.join('、'));
+                                    }}
+                                  />
+                                  {opt}
+                                </label>
+                              ))}
+                              <span className="ml-2">的能力方面，</span>
+                            </div>
+                          ) : (
+                            <>
+                              <input 
+                                type="text" 
+                                className="border-b-2 border-gray-400 mx-2 w-48 text-center focus:outline-none focus:border-blue-500 bg-transparent" 
+                                placeholder="自動抓取能力說明"
+                                value={item.ability}
+                                onChange={(e) => updateItem(item.id, 'ability', e.target.value)}
+                              />
+                              的能力方面，
+                            </>
+                          )}
+                          <span className="font-bold border-b border-gray-400 pb-1 px-2 text-blue-800">
                             {item.status ? getResultSuffix(item.status) : '(將依選擇自動變更)'}
                           </span>。
                         </>
                       )}
                     </div>
                   </div>
-                </React.Fragment>
+                </div>
               );
             })}
           </div>
@@ -328,7 +359,7 @@ function App() {
                         {item.description}
                       </td>
                       <td className="border-r border-black p-0">
-                        <textarea className="w-full h-full p-2 min-h-[80px] resize-none focus:outline-none focus:bg-blue-50" placeholder="請輸入策略..."></textarea>
+                        <textarea className="w-full h-full p-2 min-h-[80px] resize-none focus:outline-none focus:bg-blue-50" placeholder="請輸入策略..." defaultValue={item.strategy}></textarea>
                       </td>
                       <td className="p-0 align-top">
                         <input type="text" className="w-full h-full p-2 text-center focus:outline-none focus:bg-blue-50 font-bold" defaultValue={`${grade}年級`} />

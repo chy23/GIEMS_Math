@@ -21,7 +21,7 @@ export const exportToDocx = async (
             alignment: AlignmentType.CENTER,
             children: [
               new TextRun({
-                text: `新北市${district || '___'}區${school || '___'}國民小學${academicYear || '___'}學年度【${subject || '○○'}科能力檢測】結果分析及因應措施範例`,
+                text: `新北市${district || '林口'}區${school || '麗園'}國民小學${academicYear || '___'}學年度【${subject || '數學'}科能力檢測】結果分析及因應措施`,
                 bold: true,
                 size: 32,
               }),
