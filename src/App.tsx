@@ -6,10 +6,20 @@ function App() {
   const [academicYear, setAcademicYear] = useState('');
   const [subject, setSubject] = useState('');
 
-  const [highPassQs, setHighPassQs] = useState('');
+  const [highPassDims, setHighPassDims] = useState<string[]>([]);
   const [goodAbilities, setGoodAbilities] = useState('');
-  const [lowPassQs, setLowPassQs] = useState('');
+  const [lowPassDims, setLowPassDims] = useState<string[]>([]);
   const [needsImprovementAbilities, setNeedsImprovementAbilities] = useState('');
+
+  const dimensionsList = ['數與計算', '量與實測', '空間與形狀', '關係'];
+  
+  const handleDimChange = (dim: string, type: 'high' | 'low') => {
+    if (type === 'high') {
+      setHighPassDims(prev => prev.includes(dim) ? prev.filter(d => d !== dim) : [...prev, dim]);
+    } else {
+      setLowPassDims(prev => prev.includes(dim) ? prev.filter(d => d !== dim) : [...prev, dim]);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
@@ -63,15 +73,20 @@ function App() {
             <div className="flex items-start">
               <span className="mr-2">1.</span>
               <div className="flex-1 leading-loose">
-                (與全市學生作答答對率相比)本校學生第
-                <input 
-                  type="text" 
-                  className="border-b-2 border-gray-400 mx-2 w-32 text-center focus:outline-none focus:border-blue-500" 
-                  value={highPassQs}
-                  onChange={(e) => setHighPassQs(e.target.value)}
-                  placeholder="題號"
-                />
-                題通過率較高，表示在
+                (與全市學生作答答對率相比)本校學生
+                <span className="inline-flex flex-wrap items-center gap-2 mx-2 border-b-2 border-gray-200 pb-1">
+                  {dimensionsList.map(dim => (
+                    <label key={dim} className="cursor-pointer flex items-center space-x-1">
+                      <input 
+                        type="checkbox" 
+                        checked={highPassDims.includes(dim)}
+                        onChange={() => handleDimChange(dim, 'high')}
+                      />
+                      <span>{dim}向度</span>
+                    </label>
+                  ))}
+                </span>
+                通過率較高，表示在
                 <input 
                   type="text" 
                   className="border-b-2 border-gray-400 mx-2 w-48 text-center focus:outline-none focus:border-blue-500" 
@@ -86,15 +101,20 @@ function App() {
             <div className="flex items-start">
               <span className="mr-2">2.</span>
               <div className="flex-1 leading-loose">
-                (與全市學生作答答對率相比)本校學生第
-                <input 
-                  type="text" 
-                  className="border-b-2 border-gray-400 mx-2 w-32 text-center focus:outline-none focus:border-blue-500" 
-                  value={lowPassQs}
-                  onChange={(e) => setLowPassQs(e.target.value)}
-                  placeholder="題號"
-                />
-                題通過率較低，表示在
+                (與全市學生作答答對率相比)本校學生
+                <span className="inline-flex flex-wrap items-center gap-2 mx-2 border-b-2 border-gray-200 pb-1">
+                  {dimensionsList.map(dim => (
+                    <label key={dim} className="cursor-pointer flex items-center space-x-1">
+                      <input 
+                        type="checkbox" 
+                        checked={lowPassDims.includes(dim)}
+                        onChange={() => handleDimChange(dim, 'low')}
+                      />
+                      <span>{dim}向度</span>
+                    </label>
+                  ))}
+                </span>
+                通過率較低，表示在
                 <input 
                   type="text" 
                   className="border-b-2 border-gray-400 mx-2 w-48 text-center focus:outline-none focus:border-blue-500" 
