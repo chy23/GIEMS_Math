@@ -194,11 +194,11 @@ function App() {
             匯出 DOCX 檔
           </button>
         </div>
-        <h1 className="text-xl md:text-2xl font-bold text-center mb-10 leading-relaxed whitespace-nowrap overflow-x-auto">
+        <h1 className="text-base sm:text-lg md:text-xl font-bold text-center mb-10 leading-relaxed whitespace-nowrap">
           新北市
           <input 
             type="text" 
-            className="border-b-2 border-gray-400 mx-2 w-16 md:w-24 text-center focus:outline-none focus:border-blue-500" 
+            className="border-b-2 border-gray-400 mx-1 w-12 md:w-16 text-center focus:outline-none focus:border-blue-500" 
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
             placeholder="區"
@@ -206,7 +206,7 @@ function App() {
           區
           <input 
             type="text" 
-            className="border-b-2 border-gray-400 mx-2 w-20 md:w-32 text-center focus:outline-none focus:border-blue-500" 
+            className="border-b-2 border-gray-400 mx-1 w-16 md:w-24 text-center focus:outline-none focus:border-blue-500" 
             value={school}
             onChange={(e) => setSchool(e.target.value)}
             placeholder="校名"
@@ -214,7 +214,7 @@ function App() {
           國民小學
           <input 
             type="text" 
-            className="border-b-2 border-gray-400 mx-2 w-16 md:w-20 text-center focus:outline-none focus:border-blue-500" 
+            className="border-b-2 border-gray-400 mx-1 w-12 md:w-16 text-center focus:outline-none focus:border-blue-500" 
             value={academicYear}
             onChange={(e) => setAcademicYear(e.target.value)}
             placeholder="學年度"
@@ -222,7 +222,7 @@ function App() {
           學年度【
           <input 
             type="text" 
-            className="border-b-2 border-gray-400 mx-1 md:mx-2 w-16 md:w-24 text-center focus:outline-none focus:border-blue-500" 
+            className="border-b-2 border-gray-400 mx-1 w-12 md:w-16 text-center focus:outline-none focus:border-blue-500" 
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder="科目"
