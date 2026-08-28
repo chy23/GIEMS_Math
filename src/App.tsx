@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import curriculumData from './curriculum_data.json';
 
 type Status = 'higher' | 'similar' | 'lower' | '';
 
@@ -7,6 +8,12 @@ interface DimensionItem {
   name: string;
   status: Status;
   ability: string;
+}
+
+interface CurriculumItem {
+  code: string;
+  description: string;
+  remark: string;
 }
 
 const initialItems: DimensionItem[] = [
@@ -27,6 +34,7 @@ function App() {
   const [subject, setSubject] = useState('');
 
   const [items, setItems] = useState<DimensionItem[]>(initialItems);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
 
   const updateItem = (id: string, field: keyof DimensionItem, value: string) => {
     setItems(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
@@ -143,6 +151,22 @@ function App() {
           <p className="mb-4 text-gray-700 text-sm">
             --各校應參考國語文和數學、英語文檢測試題答案、命題架構與答對率分析等統計數據，分析各項能力指標，擬定具體教學目標，尋找合適教學素材，並設計適當教學策略與方法，<span className="text-red-500 underline underline-offset-2">進一步作為改善學生定期學習評量之命題(例如：於高年級國語文和數學定期評量紙筆測驗增加多元題型之命題型式)</span>。
           </p>
+
+          <div className="mb-4">
+            <label className="mr-2 font-bold text-gray-800">請選擇主題類別：</label>
+            <select 
+              className="border border-gray-400 p-2 rounded focus:outline-none focus:border-blue-500"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="">(請選擇)</option>
+              <option value="N">N (數與量)</option>
+              <option value="S">S (空間與形狀)</option>
+              <option value="R">R (關係)</option>
+              <option value="D">D (資料與不確定性)</option>
+            </select>
+            <span className="text-sm text-gray-500 ml-3">選取後將自動帶入該類別 1~6 年級的課綱資料。</span>
+          </div>
           
           <table className="w-full border-collapse border border-black text-center mb-6">
             <thead>
@@ -153,19 +177,31 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {[1, 2].map((row) => (
-                <tr key={row} className="border-b border-black">
-                  <td className="border-r border-black p-0">
-                    <textarea className="w-full h-full p-2 min-h-[60px] resize-none focus:outline-none focus:bg-blue-50" placeholder="請輸入項目..."></textarea>
-                  </td>
-                  <td className="border-r border-black p-0">
-                    <textarea className="w-full h-full p-2 min-h-[60px] resize-none focus:outline-none focus:bg-blue-50" placeholder="請輸入策略..."></textarea>
-                  </td>
-                  <td className="p-0">
-                    <input type="text" className="w-full h-full p-2 text-center focus:outline-none focus:bg-blue-50" placeholder="例如: 高年級" />
-                  </td>
+              {selectedCategory === '' ? (
+                <tr className="border-b border-black">
+                  <td colSpan={3} className="p-4 text-gray-500">請先於上方選擇主題類別以帶入資料。</td>
                 </tr>
-              ))}
+              ) : (
+                curriculumData
+                  .filter((item: CurriculumItem) => item.code.startsWith(`${selectedCategory}-`))
+                  .map((item: CurriculumItem, index: number) => {
+                    const grade = item.code.split('-')[1]; // Extracted from N-X-Y
+                    return (
+                      <tr key={`${item.code}-${index}`} className="border-b border-black">
+                        <td className="border-r border-black p-2 text-left align-top text-sm">
+                          <span className="font-bold text-blue-700">[{item.code}]</span><br/>
+                          {item.description}
+                        </td>
+                        <td className="border-r border-black p-0">
+                          <textarea className="w-full h-full p-2 min-h-[80px] resize-none focus:outline-none focus:bg-blue-50" placeholder="請輸入策略..."></textarea>
+                        </td>
+                        <td className="p-0 align-top">
+                          <input type="text" className="w-full h-full p-2 text-center focus:outline-none focus:bg-blue-50 font-bold" defaultValue={`${grade}年級`} />
+                        </td>
+                      </tr>
+                    );
+                  })
+              )}
             </tbody>
           </table>
         </section>
