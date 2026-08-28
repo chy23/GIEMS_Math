@@ -36,7 +36,7 @@ function App() {
   const [subject, setSubject] = useState('');
 
   const [items, setItems] = useState<DimensionItem[]>(initialItems);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedDimensions, setSelectedDimensions] = useState<string[]>([]);
 
   const [sec3Checked, setSec3Checked] = useState<string[]>([]);
   const [sec4Checked, setSec4Checked] = useState<string[]>([]);
@@ -61,6 +61,13 @@ function App() {
 
   const updateItem = (id: string, field: keyof DimensionItem, value: string) => {
     setItems(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
+    
+    if (field === 'status' && value === 'lower') {
+      const changedItem = items.find(i => i.id === id);
+      if (changedItem && ['數與計算', '量與實測', '空間與形狀', '關係'].includes(changedItem.name)) {
+        setSelectedDimensions(prev => prev.includes(changedItem.name) ? prev : [...prev, changedItem.name]);
+      }
+    }
   };
   
   const getResultSuffix = (status: Status) => {
@@ -176,19 +183,24 @@ function App() {
           </p>
 
           <div className="mb-4">
-            <label className="mr-2 font-bold text-gray-800">請選擇主題類別：</label>
-            <select 
-              className="border border-gray-400 p-2 rounded focus:outline-none focus:border-blue-500"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
-              <option value="">(請選擇)</option>
-              <option value="N">N (數與量)</option>
-              <option value="S">S (空間與形狀)</option>
-              <option value="R">R (關係)</option>
-              <option value="D">D (資料與不確定性)</option>
-            </select>
-            <span className="text-sm text-gray-500 ml-3">選取後將自動帶入該類別 1~6 年級的課綱資料。</span>
+            <label className="mr-2 font-bold text-gray-800">請勾選欲改善之向度：</label>
+            <div className="flex gap-4 mt-2 mb-2 flex-wrap">
+              {['數與計算', '量與實測', '空間與形狀', '關係'].map(dim => (
+                <label key={dim} className="flex items-center cursor-pointer bg-gray-100 px-3 py-1 rounded border border-gray-300">
+                  <input 
+                    type="checkbox" 
+                    className="mr-2"
+                    checked={selectedDimensions.includes(dim)}
+                    onChange={(e) => {
+                      if (e.target.checked) setSelectedDimensions(prev => [...prev, dim]);
+                      else setSelectedDimensions(prev => prev.filter(d => d !== dim));
+                    }}
+                  />
+                  {dim}
+                </label>
+              ))}
+            </div>
+            <span className="text-sm text-gray-500 block">第一大題評估為「低於」市平均的向度會自動帶入此處，您也可以手動勾選調整。</span>
           </div>
           
           <table className="w-full border-collapse border border-black text-center mb-6">
@@ -200,13 +212,31 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {selectedCategory === '' ? (
+              {selectedDimensions.length === 0 ? (
                 <tr className="border-b border-black">
-                  <td colSpan={3} className="p-4 text-gray-500">請先於上方選擇主題類別以帶入資料。</td>
+                  <td colSpan={3} className="p-4 text-gray-500">請先於上方勾選欲改善之向度以帶入課綱資料。</td>
                 </tr>
               ) : (
                 curriculumData
-                  .filter((item: CurriculumItem) => item.code.startsWith(`${selectedCategory}-`))
+                  .filter((item: CurriculumItem) => {
+                    const isMeasurement = /面積|重量|體積|容積|時間|長度|容量|角度|鐘面|時刻|日曆|公分|公尺|毫米|公里|公克|公斤|公升|毫升/.test(item.description);
+                    
+                    let match = false;
+                    if (selectedDimensions.includes('數與計算')) {
+                      if (item.code.startsWith('N-') && !isMeasurement) match = true;
+                    }
+                    if (selectedDimensions.includes('量與實測')) {
+                      if ((item.code.startsWith('N-') || item.code.startsWith('S-')) && isMeasurement) match = true;
+                    }
+                    if (selectedDimensions.includes('空間與形狀')) {
+                      if (item.code.startsWith('S-') && !isMeasurement) match = true;
+                    }
+                    if (selectedDimensions.includes('關係')) {
+                      if (item.code.startsWith('R-')) match = true;
+                    }
+                    
+                    return match;
+                  })
                   .map((item: CurriculumItem, index: number) => {
                     const grade = item.code.split('-')[1]; // Extracted from N-X-Y
                     return (
