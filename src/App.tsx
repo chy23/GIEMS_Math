@@ -469,7 +469,7 @@ function App() {
         {/* Section 5 */}
         <section className="mb-10">
           <h2 className="text-xl font-bold mb-4">五、其他因應措施</h2>
-          <p className="mb-2 text-gray-700 text-sm">--各校視需要自行撰寫</p>
+
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1">
               <h3 className="font-bold text-gray-700 mb-2">可勾選之參考項目：</h3>
