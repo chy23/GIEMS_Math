@@ -189,16 +189,16 @@ function App() {
         <div className="flex justify-end mb-4">
           <button 
             onClick={handleExport}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow text-sm"
+            className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all duration-100 ease-out text-white font-bold py-2 px-4 rounded shadow text-sm"
           >
             匯出 DOCX 檔
           </button>
         </div>
-        <h1 className="text-base sm:text-lg md:text-xl font-bold text-center mb-10 leading-relaxed whitespace-nowrap">
+        <h1 className="text-base sm:text-lg md:text-xl font-bold text-center mb-10 leading-tight tracking-tight whitespace-nowrap flex items-center justify-center">
           新北市
           <input 
             type="text" 
-            className="border-b-2 border-gray-400 mx-1 w-12 md:w-16 text-center focus:outline-none focus:border-blue-500" 
+            className="bg-gray-100 rounded-md mx-1 py-1 w-12 md:w-16 text-center focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 transition-shadow" 
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
             placeholder="區"
@@ -206,7 +206,7 @@ function App() {
           區
           <input 
             type="text" 
-            className="border-b-2 border-gray-400 mx-1 w-16 md:w-24 text-center focus:outline-none focus:border-blue-500" 
+            className="bg-gray-100 rounded-md mx-1 py-1 w-16 md:w-24 text-center focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 transition-shadow" 
             value={school}
             onChange={(e) => setSchool(e.target.value)}
             placeholder="校名"
@@ -214,7 +214,7 @@ function App() {
           國民小學
           <input 
             type="text" 
-            className="border-b-2 border-gray-400 mx-1 w-12 md:w-16 text-center focus:outline-none focus:border-blue-500" 
+            className="bg-gray-100 rounded-md mx-1 py-1 w-12 md:w-16 text-center focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 transition-shadow" 
             value={academicYear}
             onChange={(e) => setAcademicYear(e.target.value)}
             placeholder="學年度"
@@ -222,7 +222,7 @@ function App() {
           學年度【
           <input 
             type="text" 
-            className="border-b-2 border-gray-400 mx-1 w-12 md:w-16 text-center focus:outline-none focus:border-blue-500" 
+            className="bg-gray-100 rounded-md mx-1 py-1 w-12 md:w-16 text-center focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 transition-shadow" 
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder="科目"
@@ -338,9 +338,9 @@ function App() {
                       />
                       {dim}
                     </label>
-                    <div className="flex flex-wrap gap-4 ml-4">
+                    <div className="flex flex-wrap gap-4 ml-4 transition-all duration-300 ease-out">
                       {selectedDimensions.includes(dim) && subs.map(sub => (
-                        <label key={sub} className="flex items-center cursor-pointer text-sm text-gray-700 hover:text-blue-600">
+                        <label key={sub} className="flex items-center cursor-pointer text-sm text-gray-700 hover:text-blue-600 animate-[fadeIn_0.2s_ease-out]">
                           <input 
                             type="checkbox" 
                             className="mr-1 w-4 h-4"

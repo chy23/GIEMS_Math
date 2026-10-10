@@ -2,145 +2,54 @@ const fs = require('fs');
 
 let content = fs.readFileSync('src/App.tsx', 'utf8');
 
-// 1. Add selectedSubThemes state
+// 1. Button active scale
 content = content.replace(
-    'const [selectedDimensions, setSelectedDimensions] = useState<string[]>([]);',
-    'const [selectedDimensions, setSelectedDimensions] = useState<string[]>([]);\n  const [selectedSubThemes, setSelectedSubThemes] = useState<string[]>([]);'
+    'className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow text-sm"',
+    'className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all duration-100 ease-out text-white font-bold py-2 px-4 rounded shadow text-sm"'
 );
 
-// 2. Update updateItem
+// 2. Title Typography
 content = content.replace(
-    'setSelectedDimensions(prev => prev.includes(changedItem.name) ? prev : [...prev, changedItem.name]);',
-    `setSelectedDimensions(prev => prev.includes(changedItem.name) ? prev : [...prev, changedItem.name]);
-        const abilities = changedItem.ability.split('、').filter(Boolean);
-        if (abilities.length > 0) {
-           setSelectedSubThemes(prev => {
-             const newSet = new Set([...prev, ...abilities]);
-             return Array.from(newSet);
-           });
-        }`
+    'className="text-base sm:text-lg md:text-xl font-bold text-center mb-10 leading-relaxed whitespace-nowrap"',
+    'className="text-base sm:text-lg md:text-xl font-bold text-center mb-10 leading-tight tracking-tight whitespace-nowrap flex items-center justify-center"'
 );
+// Added flex items-center justify-center to properly vertically align the rounded inputs with text.
 
-// 3. Update sampledCurriculum logic
+// 3. Inputs
+const inputOld = 'border-b-2 border-gray-400 mx-1 w-12 md:w-16 text-center focus:outline-none focus:border-blue-500';
+const inputNew = 'bg-gray-100 rounded-md mx-1 py-1 w-12 md:w-16 text-center focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 transition-shadow';
+content = content.split(inputOld).join(inputNew);
+
+const inputOld2 = 'border-b-2 border-gray-400 mx-1 w-16 md:w-24 text-center focus:outline-none focus:border-blue-500';
+const inputNew2 = 'bg-gray-100 rounded-md mx-1 py-1 w-16 md:w-24 text-center focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 transition-shadow';
+content = content.split(inputOld2).join(inputNew2);
+
+// 4. SubThemes Animation
 content = content.replace(
-    /const sampledCurriculum = useMemo\(\(\) => \{[\s\S]*?return result\.sort\(/,
-    `const sampledCurriculum = useMemo(() => {
-    if (selectedSubThemes.length === 0) return [];
-    
-    const itemsByGradeAndSub: Record<string, Record<string, CurriculumItem[]>> = {
-      '1': {}, '2': {}, '3': {}, '4': {}, '5': {}, '6': {}
-    };
-
-    curriculumData.forEach((item: any) => {
-      const parts = item.code.split('-');
-      if (parts.length < 2) return;
-      const grade = parts[1];
-      if (!itemsByGradeAndSub[grade]) return;
-
-      const sub = item.matchedAbility;
-      if (selectedSubThemes.includes(sub)) {
-        if (!itemsByGradeAndSub[grade][sub]) itemsByGradeAndSub[grade][sub] = [];
-        itemsByGradeAndSub[grade][sub].push(item);
-      }
-    });
-
-    const result: CurriculumItem[] = [];
-
-    ['1', '2', '3', '4', '5', '6'].forEach(grade => {
-      const subsForGrade = Object.keys(itemsByGradeAndSub[grade]);
-      if (subsForGrade.length === 0) return;
-
-      const targetCount = Math.floor(Math.random() * 3) + 6; // 6, 7, or 8
-      const selectedForGrade: CurriculumItem[] = [];
-      
-      const pools = subsForGrade.map(sub => {
-        const arr = [...itemsByGradeAndSub[grade][sub]];
-        return arr.sort(() => 0.5 - Math.random());
-      });
-
-      let added = true;
-      while (selectedForGrade.length < targetCount && added) {
-        added = false;
-        for (let pool of pools) {
-          if (selectedForGrade.length >= targetCount) break;
-          if (pool.length > 0) {
-            selectedForGrade.push(pool.pop()!);
-            added = true;
-          }
-        }
-      }
-
-      result.push(...selectedForGrade);
-    });
-
-    return result.sort(`
+    'className="flex flex-wrap gap-4 ml-4"',
+    'className="flex flex-wrap gap-4 ml-4 transition-all duration-300 ease-out"'
 );
-
-// 4. Update Section 2 UI
-const uiOld = `<div className="mb-4">
-            <label className="mr-2 font-bold text-gray-800">請勾選欲改善之向度：</label>
-            <div className="flex gap-4 mt-2 mb-2 flex-wrap">
-              {['數與計算', '量與實測', '空間與形狀', '關係'].map(dim => (
-                <label key={dim} className="flex items-center cursor-pointer bg-gray-100 px-3 py-1 rounded border border-gray-300">
-                  <input 
-                    type="checkbox" 
-                    className="mr-2"
-                    checked={selectedDimensions.includes(dim)}
-                    onChange={(e) => {
-                      if (e.target.checked) setSelectedDimensions(prev => [...prev, dim]);
-                      else setSelectedDimensions(prev => prev.filter(d => d !== dim));
-                    }}
-                  />
-                  {dim}
-                </label>
-              ))}
-            </div>
-            <span className="text-sm text-gray-500 block">第一大題評估為「低於」市平均的向度會自動帶入此處，您也可以手動勾選調整。</span>
-          </div>`;
-
-const uiNew = `<div className="mb-4">
-            <label className="mr-2 font-bold text-gray-800">請勾選欲改善之向度與次主題：</label>
-            <div className="flex flex-col gap-2 mt-2 mb-2">
-              {['數與計算', '量與實測', '空間與形狀', '關係'].map(dim => {
-                const dimId = Object.keys(abilityOptions).find(k => initialItems.find(i => i.id === k)?.name === dim)!;
-                const subs = abilityOptions[dimId] || [];
-                return (
-                  <div key={dim} className="flex items-center bg-gray-100 p-3 rounded border border-gray-300 min-h-[48px]">
-                    <label className="flex items-center cursor-pointer font-bold w-32 shrink-0">
-                      <input 
-                        type="checkbox" 
-                        className="mr-2 w-4 h-4"
-                        checked={selectedDimensions.includes(dim)}
-                        onChange={(e) => {
-                          if (e.target.checked) setSelectedDimensions(prev => [...prev, dim]);
-                          else setSelectedDimensions(prev => prev.filter(d => d !== dim));
-                        }}
-                      />
-                      {dim}
-                    </label>
-                    <div className="flex flex-wrap gap-4 ml-4">
-                      {selectedDimensions.includes(dim) && subs.map(sub => (
-                        <label key={sub} className="flex items-center cursor-pointer text-sm text-gray-700 hover:text-blue-600">
-                          <input 
-                            type="checkbox" 
-                            className="mr-1 w-4 h-4"
-                            checked={selectedSubThemes.includes(sub)}
-                            onChange={(e) => {
-                              if (e.target.checked) setSelectedSubThemes(prev => [...prev, sub]);
-                              else setSelectedSubThemes(prev => prev.filter(s => s !== sub));
-                            }}
-                          />
-                          {sub}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <span className="text-sm text-gray-500 block">第一大題評估為「低於」市平均的向度及其選取的次主題會自動帶入此處，您也可以手動勾選調整。</span>
-          </div>`;
-
-content = content.replace(uiOld, uiNew);
+content = content.replace(
+    'className="flex items-center cursor-pointer text-sm text-gray-700 hover:text-blue-600"',
+    'className="flex items-center cursor-pointer text-sm text-gray-700 hover:text-blue-600 animate-[fadeIn_0.2s_ease-out]"'
+);
 
 fs.writeFileSync('src/App.tsx', content);
+
+// Add fadeIn animation to tailwind config
+let configContent = fs.readFileSync('tailwind.config.js', 'utf8');
+if (!configContent.includes('keyframes')) {
+    configContent = configContent.replace(
+        'extend: {},',
+        `extend: {
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(-5px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        }
+      }
+    },`
+    );
+    fs.writeFileSync('tailwind.config.js', configContent);
+}
+
